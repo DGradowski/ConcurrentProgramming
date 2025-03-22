@@ -8,6 +8,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logic", "Logic\Logic.csproj", "{A888FB38-8C22-4EC5-BC5B-F5E94F774BA4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "View", "View\View.csproj", "{27402A3B-ADFC-416A-9E6B-E4B5717DE98B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A888FB38-8C22-4EC5-BC5B-F5E94F774BA4} = {A888FB38-8C22-4EC5-BC5B-F5E94F774BA4}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Model", "Model\Model.csproj", "{C1905F1B-368F-4723-B9DF-B270D5500F00}"
 EndProject

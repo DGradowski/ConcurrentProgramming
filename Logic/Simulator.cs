@@ -33,5 +33,16 @@ namespace Logic
 				ball.Move(x, y);
 			}
 		}
-	}
+
+        public List<Ball> GetAllBalls()
+        {
+            List<Ball> balls = new List<Ball>();
+            for (int i = 0; i < repo.BallNumber; i++)
+            {
+                balls.Add(repo.GetBall(i));
+            }
+            return balls;
+        }
+
+    }
 }

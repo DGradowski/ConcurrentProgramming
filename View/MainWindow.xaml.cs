@@ -1,36 +1,54 @@
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
+using Logic;
+using Microsoft.UI.Xaml.Shapes;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml;
+using System.Threading.Tasks;
 
 namespace View
 {
-	/// <summary>
-	/// An empty window that can be used on its own or navigated to within a Frame.
-	/// </summary>
-	public sealed partial class MainWindow : Window
-	{
-		public MainWindow()
-		{
-			this.InitializeComponent();
-		}
+    public partial class MainWindow : Window
+    {
+        private Simulator simulator;
 
-		private void myButton_Click(object sender, RoutedEventArgs e)
-		{
-			myButton.Content = "Clicked";
-		}
-	}
+        public MainWindow()
+        {
+            InitializeComponent();
+            simulator = new Simulator();
+
+            simulator.AddBall(50, 50);
+            simulator.AddBall(100, 100);
+
+            StartSimulation();
+        }
+
+        private void DrawBalls()
+        {
+            DrawingCanvas.Children.Clear();
+
+            foreach (var ball in simulator.GetAllBalls())
+            {
+                Ellipse ellipse = new Ellipse
+                {
+                    Width = 20,
+                    Height = 20,
+                    Fill = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 0, 0))
+                };
+
+                Canvas.SetLeft(ellipse, ball.PosX);
+                Canvas.SetTop(ellipse, ball.PosY);
+                DrawingCanvas.Children.Add(ellipse);
+            }
+        }
+
+        private async void StartSimulation()
+        {
+            while (true)
+            {
+                simulator.SimulateBalls();
+                DrawBalls();
+                await Task.Delay(100);
+            }
+        }
+    }
 }
