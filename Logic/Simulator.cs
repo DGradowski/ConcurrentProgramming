@@ -17,6 +17,11 @@ namespace Logic
 			repo = new BallRepository();
 		}
 
+		public Simulator(BallRepository repo)
+		{
+			this.repo = repo;
+		}
+
 		public void AddBall(int x, int y)
 		{
 			repo.Add(new Ball(x, y));
