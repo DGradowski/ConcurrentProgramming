@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Logic
 {
-	internal record Position : IPosition
+	public record Position : IPosition
 	{
 		public double x { get; init; }
 		public double y { get; init; }

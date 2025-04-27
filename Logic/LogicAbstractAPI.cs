@@ -22,6 +22,10 @@ namespace Logic
 		public abstract void Dispose();
 
 		private static Lazy<LogicAbstractAPI> modelInstance = new Lazy<LogicAbstractAPI>(() => new LogicImplementation());
+
+		public abstract void Pause();
+
+		public abstract void Continue();
 	}
 
 	public record Dimensions(double BallDimension, double TableHeight, double TableWidth);

@@ -7,20 +7,14 @@ using System.Threading.Tasks;
 
 namespace Logic
 {
-	internal class Ball : IBall
+	public class Ball : IBall
 	{
 		public Ball(Data.IBall ball)
 		{
 			ball.NewPositionNotification += RaisePositionChangeEvent;
 		}
 
-		#region IBall
-
 		public event EventHandler<IPosition>? NewPositionNotification;
-
-		#endregion IBall
-
-		#region private
 
 		private void RaisePositionChangeEvent(object? sender, Data.IVector e)
 		{

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Model
 {
-	internal class Ball : IBall
+	public class Ball : IBall
 	{
 		public event PropertyChangedEventHandler PropertyChanged;
 
@@ -26,7 +26,7 @@ namespace Model
 		public double Top
 		{
 			get { return TopBackingField; }
-			private set
+			set
 			{
 				if (TopBackingField == value)
 					return;
@@ -38,7 +38,7 @@ namespace Model
 		public double Left
 		{
 			get { return LeftBackingField; }
-			private set
+			set
 			{
 				if (LeftBackingField == value)
 					return;

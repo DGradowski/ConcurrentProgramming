@@ -9,17 +9,14 @@ using UnderneathLayerAPI = Data.DataAbstractAPI;
 
 namespace Logic
 {
-	internal class LogicImplementation : LogicAbstractAPI
+	public class LogicImplementation : LogicAbstractAPI
 	{
 		private bool Disposed = false;
 		private readonly UnderneathLayerAPI layerBellow;
 
-		public LogicImplementation()
-		{
+		public LogicImplementation() : this(null) { }
 
-		}
-
-		internal LogicImplementation(UnderneathLayerAPI? underneathLayer)
+		public LogicImplementation(UnderneathLayerAPI? underneathLayer)
 		{
 			layerBellow = underneathLayer == null ? UnderneathLayerAPI.GetDataLayer() : underneathLayer;
 		}
@@ -42,8 +39,18 @@ namespace Logic
 			layerBellow.Start(
 				numberOfBalls, 
 				(startingPosition, databall) => 
-					upperLayerHandler(new Position(startingPosition.x, startingPosition.x), new Ball(databall))
+					upperLayerHandler(new Position(startingPosition.x, startingPosition.y), new Ball(databall))
 				);
+		}
+
+		public override void Pause()
+		{
+			UnderneathLayerAPI.GetDataLayer().Pause();
+		}
+
+		public override void Continue()
+		{
+			UnderneathLayerAPI.GetDataLayer().Continue();
 		}
 	}
 }

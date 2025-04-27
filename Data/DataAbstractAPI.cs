@@ -1,5 +1,4 @@
-﻿using Model;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -21,6 +20,10 @@ namespace Data
 
 
 		private static Lazy<DataAbstractAPI> instance = new Lazy<DataAbstractAPI>(() => new DataImplementation());
+
+		public abstract void Pause();
+
+		public abstract void Continue();
 	}
 
 	public interface IVector

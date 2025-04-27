@@ -20,6 +20,10 @@ namespace Model
 
 		public abstract void Dispose();
 
+		public abstract void Pause();
+
+		public abstract void Continue();
+
 		private static Lazy<ModelAbstractAPI> modelInstance = new Lazy<ModelAbstractAPI>(() => new ModelImplementation());
 	}
 

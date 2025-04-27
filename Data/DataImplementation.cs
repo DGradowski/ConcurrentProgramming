@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,9 +11,14 @@ namespace Data
 	{
 		private bool Disposed = false;
 
+		private bool paused = false;
+
 		private readonly Timer MoveTimer;
 		private Random RandomGenerator = new();
 		private List<Ball> BallsList = [];
+
+		private double canvasWidth = 700;
+		private double canvasHeight = 500;
 
 		public DataImplementation()
 		{
@@ -28,8 +34,9 @@ namespace Data
 			Random random = new Random();
 			for (int i = 0; i < numberOfBalls; i++)
 			{
-				Vector startingPosition = new Vector(random.Next(100, 400 - 100), random.Next(100, 400 - 100));
-				Ball newBall = new Ball(startingPosition, startingPosition);
+				Vector startingPosition = new Vector(random.Next(100, (int)canvasWidth - 100), random.Next(100, (int)canvasHeight - 100));
+				Vector startingVelocity = new Vector(random.Next(-5, 5), random.Next(-5, 5));
+				Ball newBall = new Ball(startingPosition, startingVelocity);
 				upperLayerHandler(startingPosition, newBall);
 				BallsList.Add(newBall);
 			}
@@ -57,10 +64,43 @@ namespace Data
 			GC.SuppressFinalize(this);
 		}
 
+		
+
 		private void Move(object? x)
 		{
+			if (paused) return;
 			foreach (Ball item in BallsList)
-				item.Move(item.Velocity);
+			{	
+				item.Move(canvasWidth, canvasHeight);
+			}
+		}
+
+		public override void Pause()
+		{
+			paused = true;
+		}
+
+		public override void Continue()
+		{
+			paused = false;
+		}
+
+		[Conditional("DEBUG")]
+		public void CheckBallsList(Action<IEnumerable<IBall>> returnBallsList)
+		{
+			returnBallsList(BallsList);
+		}
+
+		[Conditional("DEBUG")]
+		public void CheckNumberOfBalls(Action<int> returnNumberOfBalls)
+		{
+			returnNumberOfBalls(BallsList.Count);
+		}
+
+		[Conditional("DEBUG")]
+		public void CheckObjectDisposed(Action<bool> returnInstanceDisposed)
+		{
+			returnInstanceDisposed(Disposed);
 		}
 	}
 }

@@ -1,6 +1,6 @@
 using Data;
 
-namespace ModelTest
+namespace DataTest
 {
 	public class BallTests
 	{
@@ -9,26 +9,28 @@ namespace ModelTest
 		[SetUp]
 		public void Setup()
 		{
-			ball = new Ball(1, 5);
+			ball = new Ball(new Vector(10, 50), new Vector(5, 15));
 		}
 
 		[Test]
 		public void GetterTest()
 		{
-			Assert.That(ball.PosX, Is.EqualTo(1));
-			Assert.That(ball.PosY, Is.EqualTo(5));
+			Assert.That(ball.Position.x, Is.EqualTo(10));
+			Assert.That(ball.Position.y, Is.EqualTo(50));
+
+			Assert.That(ball.Velocity.x, Is.EqualTo(5));
+			Assert.That(ball.Velocity.y, Is.EqualTo(15));
 		}
 
 		[Test]
 		public void MoveTest()
 		{
-			ball.Move(3, 5);
-			Assert.That(ball.PosX, Is.EqualTo(4));
-			Assert.That(ball.PosY, Is.EqualTo(10));
-
-			ball.Move(-5, -3);
-			Assert.That(ball.PosX, Is.EqualTo(-1));
-			Assert.That(ball.PosY, Is.EqualTo(7));
+			ball.Move(100, 100);
+			Assert.That(ball.Position.x, Is.EqualTo(15));
+			Assert.That(ball.Position.y, Is.EqualTo(65));
+			ball.Move(100, 100);
+			Assert.That(ball.Position.x, Is.EqualTo(20));
+			Assert.That(ball.Position.y, Is.EqualTo(64));
 		}
 	}
 }

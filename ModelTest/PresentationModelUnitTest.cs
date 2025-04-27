@@ -1,0 +1,87 @@
+﻿//____________________________________________________________________________________________________________________________________
+//
+//  Copyright (C) 2024, Mariusz Postol LODZ POLAND.
+//
+//  To be in touch join the community by pressing the `Watch` button and get started commenting using the discussion panel at
+//
+//  https://github.com/mpostol/TP/discussions/182
+//
+//_____________________________________________________________________________________________________________________________________
+
+using Logic;
+using Model;
+
+namespace ModelTest
+{
+  public class PresentationModelUnitTest
+  {
+    [Test]
+    public void DisposeTestMethod()
+    {
+      UnderneathLayerFixture underneathLayerFixture = new UnderneathLayerFixture();
+      ModelImplementation? newInstance = null;
+      using (newInstance = new(underneathLayerFixture))
+      {
+        newInstance.CheckObjectDisposed(x => Assert.IsFalse(x));
+        newInstance.CheckUnderneathLayerAPI(x => Assert.AreSame(underneathLayerFixture, x));
+        newInstance.CheckBallChangedEvent(x => Assert.IsTrue(x));
+        Assert.IsFalse(underneathLayerFixture.Disposed);
+      }
+      newInstance.CheckObjectDisposed(x => Assert.IsTrue(x));
+      newInstance.CheckUnderneathLayerAPI(x => Assert.AreSame(underneathLayerFixture, x));
+      Assert.IsTrue(underneathLayerFixture.Disposed);
+      Assert.Throws<ObjectDisposedException>(() => newInstance.Dispose());
+    }
+
+    [Test]
+    public void StartTestMethod()
+    {
+      UnderneathLayerFixture underneathLayerFixture = new UnderneathLayerFixture();
+      using (ModelImplementation newInstance = new(underneathLayerFixture))
+      {
+        newInstance.CheckBallChangedEvent(x => Assert.IsTrue(x));
+        IDisposable subscription = newInstance.Subscribe(x => { });
+        newInstance.CheckBallChangedEvent(x => Assert.IsFalse(x));
+        newInstance.Start(10);
+        Assert.AreEqual(10, underneathLayerFixture.NumberOfBalls);
+        subscription.Dispose();
+        newInstance.CheckBallChangedEvent(x => Assert.IsTrue(x));
+      }
+    }
+
+    private class UnderneathLayerFixture : LogicAbstractAPI
+    {
+      #region testing instrumentation
+
+      internal bool Disposed = false;
+      internal int NumberOfBalls = 0;
+
+			public override void Continue()
+			{
+				throw new NotImplementedException();
+			}
+
+			#endregion testing instrumentation
+
+			#region BusinessLogicAbstractAPI
+
+			public override void Dispose()
+            {
+                Disposed = true;
+            }
+
+			public override void Pause()
+			{
+				throw new NotImplementedException();
+			}
+
+			public override void Start(int numberOfBalls, Action<IPosition, Logic.IBall> upperLayerHandler)
+      {
+        NumberOfBalls = numberOfBalls;
+        Assert.IsNotNull(upperLayerHandler);
+      }
+
+      #endregion BusinessLogicAbstractAPI
+    }
+  }
+}
