@@ -1,6 +1,4 @@
-﻿using Model;
-
-namespace Data
+﻿namespace Data
 {
 	public class BallRepository
 	{
