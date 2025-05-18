@@ -10,6 +10,7 @@
 
 using Model;
 using Logic;
+using System.Numerics;
 
 namespace ModelTest
 {
@@ -18,7 +19,7 @@ namespace ModelTest
     [Test]
     public void ConstructorTestMethod()
     {
-      Model.Ball ball = new Model.Ball(0.0, 0.0, new BusinessLogicIBallFixture());
+      Model.Ball ball = new Model.Ball(0.0, 0.0, new BusinessLogicIBallFixture(new Data.Vector(0, 0), new Data.Vector(0, 0), 2));
       Assert.AreEqual(0.0, ball.Top);
       Assert.AreEqual(0.0, ball.Top);
     }
@@ -27,7 +28,7 @@ namespace ModelTest
     public void PositionChangeNotificationTestMethod()
     {
       int notificationCounter = 0;
-      Model.Ball ball = new Model.Ball(0, 0.0, new BusinessLogicIBallFixture());
+      Model.Ball ball = new Model.Ball(0, 0.0, new BusinessLogicIBallFixture(new Data.Vector(0, 0), new Data.Vector(0, 0), 2));
       ball.PropertyChanged += (sender, args) => notificationCounter++;
       Assert.AreEqual(0, notificationCounter);
       ball.Left = 1.0;
@@ -40,14 +41,18 @@ namespace ModelTest
       Assert.AreEqual(1.0, ball.Top);
     }
 
-    private class BusinessLogicIBallFixture : Logic.IBall
-    {
-      public event EventHandler<IPosition>? NewPositionNotification;
+        private class BusinessLogicIBallFixture : Logic.Ball
+        {
+			public BusinessLogicIBallFixture(Data.Vector position, Data.Vector velocity, int diameter) : base(position, velocity, diameter)
+			{
+			}
 
-      public void Dispose()
-      {
-        throw new NotImplementedException();
-      }
-    }
+			//public event EventHandler<Vector>? NewPositionNotification;
+
+            public void Dispose()
+            {
+                throw new NotImplementedException();
+            }
+        }
   }
 }

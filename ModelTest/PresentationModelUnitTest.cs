@@ -51,7 +51,6 @@ namespace ModelTest
 
     private class UnderneathLayerFixture : LogicAbstractAPI
     {
-      #region testing instrumentation
 
       internal bool Disposed = false;
       internal int NumberOfBalls = 0;
@@ -60,10 +59,6 @@ namespace ModelTest
 			{
 				throw new NotImplementedException();
 			}
-
-			#endregion testing instrumentation
-
-			#region BusinessLogicAbstractAPI
 
 			public override void Dispose()
             {
@@ -75,13 +70,16 @@ namespace ModelTest
 				throw new NotImplementedException();
 			}
 
-			public override void Start(int numberOfBalls, Action<IPosition, Logic.IBall> upperLayerHandler)
-      {
-        NumberOfBalls = numberOfBalls;
-        Assert.IsNotNull(upperLayerHandler);
-      }
+			public override void Start(int numberOfBalls, Action<Logic.Ball> upperLayerHandler)
+              {
+                NumberOfBalls = numberOfBalls;
+                Assert.IsNotNull(upperLayerHandler);
+              }
 
-      #endregion BusinessLogicAbstractAPI
-    }
+			public override void Stop()
+			{
+				throw new NotImplementedException();
+			}
+		}
   }
 }

@@ -43,9 +43,9 @@ namespace Model
 
 		public event EventHandler<BallChaneEventArgs> BallChanged;
 
-		private void StartHandler(Logic.IPosition position, Logic.IBall ball)
+		private void StartHandler(Logic.Ball ball)
 		{
-			Ball newBall = new Ball(position.x, position.y, ball) { Diameter = 20.0 };
+			Ball newBall = new Ball(ball.Position.X, ball.Position.Y, ball) { Diameter = 20.0 };
 			BallChanged.Invoke(this, new BallChaneEventArgs() { Ball = newBall });
 		}
 

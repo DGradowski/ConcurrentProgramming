@@ -6,15 +6,18 @@ using System.Threading.Tasks;
 
 namespace Data
 {
-	public record Vector : IVector
+	public class Vector
 	{
-		public double x { get; init; }
-		public double y { get; init; }
+		private int x;
+		private int y;
 
-		public Vector(double x, double y)
+		public Vector(int x, int y)
 		{
 			this.x = x;
 			this.y = y;
 		}
+
+		public int X { get => x; set => x = value; }
+		public int Y { get => y; set => y = value; }
 	}
 }

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,7 +17,7 @@ namespace Model
 		private double TopBackingField;
 		private double LeftBackingField;
 
-		public Ball(double top, double left, Logic.IBall underneathBall)
+		public Ball(double top, double left, Logic.Ball underneathBall)
 		{
 			TopBackingField = top;
 			LeftBackingField = left;
@@ -49,9 +50,9 @@ namespace Model
 
 		public double Diameter { get; init; } = 0;
 
-		private void NewPositionNotification(object sender, IPosition e)
+		private void NewPositionNotification(object sender, Data.Vector e)
 		{
-			Top = e.y; Left = e.x;
+			Top = e.Y; Left = e.X;
 		}
 
 		private void RaisePropertyChanged([CallerMemberName] string propertyName = "")
