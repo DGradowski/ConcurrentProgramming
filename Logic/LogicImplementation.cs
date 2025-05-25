@@ -11,8 +11,8 @@ namespace Logic
 	public class LogicImplementation : LogicAbstractAPI
 	{
 		private List<Ball> balls = new List<Ball>();
-		private int boardWidth = 700 - 28;
-		private int boardHeight = 500 - 29;
+		private int boardWidth = 700 - 8;//700 - 28;
+		private int boardHeight = 500 - 8;//500 - 29;
 		private bool paused = false;
 		private bool Disposed = false;
 
@@ -34,7 +34,6 @@ namespace Logic
 		{
 			if (!paused) return;
 			paused = false;
-			foreach (var b in balls) b.StartMovingAsync();
 		}
 
 		public override void Start(int numberOfBalls, Action<Logic.Ball> upperLayerHandler)
@@ -44,8 +43,8 @@ namespace Logic
 			balls.Clear();
 			for (int i = 0; i < numberOfBalls; i++)
 			{
-				int posX = random.Next(boardWidth);
-				int posY = random.Next(boardHeight);
+				int posX = random.Next(boardWidth - 30);
+				int posY = random.Next(boardHeight - 30);
 				int velX = random.Next(7) - 3;
 				int velY = random.Next(7) - 3;
 				Data.Vector pos = new Data.Vector(posX, posY);
@@ -54,7 +53,18 @@ namespace Logic
 				Ball ball = new Ball(pos, vel, 20);
 				balls.Add(ball);
 				upperLayerHandler(ball);
-				ball.StartMovingAsync(); // Start thread for this ball
+				Task.Run(async () =>
+				{
+					while (!Disposed)
+					{
+						if (!paused)
+						{
+							ball.Move();
+							ball.BounceOffWall(boardWidth, boardHeight);
+						}
+						await Task.Delay(30); // 30 ms = ~33 FPS
+					}
+				});
 			}
 			StartCollisionDetection();
 		}

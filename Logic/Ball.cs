@@ -51,25 +51,9 @@ namespace Logic
 			RaiseNewPositionChangeNotification();
 		}
 
-		public void StartMovingAsync()
-		{
-			cts = new CancellationTokenSource();
-			var token = cts.Token;
-
-			Task.Run(async () =>
-			{
-				while (!token.IsCancellationRequested)
-				{
-					BounceOffWall(700 - 8, 500 - 8);
-					Move();
-					await Task.Delay(100, token); // delay 100ms
-				}
-			}, token);
-		}
-
 		public void StopMoving()
 		{
-			cts?.Cancel();
+			
 		}
 
 		public void BounceOffWall(int boardWidth, int boardHeight)
