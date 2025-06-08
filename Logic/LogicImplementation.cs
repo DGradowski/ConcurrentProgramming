@@ -10,86 +10,168 @@ namespace Logic
 {
 	public class LogicImplementation : LogicAbstractAPI
 	{
-		private List<Ball> balls = new List<Ball>();
-		private int boardWidth = 700 - 8;//700 - 28;
-		private int boardHeight = 500 - 8;//500 - 29;
+		private readonly List<Ball> balls = new List<Ball>();
+		private readonly object ballsLock = new object();
+		private readonly List<System.Timers.Timer> ballTimers = new List<System.Timers.Timer>();
 		private bool paused = false;
-		private bool Disposed = false;
+		private bool disposed = false;
+		private int boardWidth = 700 - 8;
+		private int boardHeight = 500 - 8;
 
 		public override void Dispose()
 		{
-			if (Disposed) throw new ObjectDisposedException(nameof(LogicImplementation));
-			foreach (var b in balls) b.StopMoving();
-			collisionTokenSource?.Cancel();
-			Disposed = true;
+			if (disposed) return;
+
+			lock (ballsLock)
+			{
+				// Zatrzymanie i usunięcie timerów kulek
+				foreach (var timer in ballTimers)
+				{
+					timer.Stop();
+					timer.Dispose();
+				}
+				ballTimers.Clear();
+
+
+				// Zatrzymanie wszystkich kulek
+				foreach (var ball in balls)
+				{
+					ball.StopMoving();
+				}
+				balls.Clear();
+			}
+
+			disposed = true;
 		}
 
 		public override void Pause()
 		{
+			if (paused) return;
 			paused = true;
-			foreach (var b in balls) b.StopMoving();
+
+			lock (ballsLock)
+			{
+				foreach (var timer in ballTimers)
+				{
+					timer.Stop();
+				}
+			}
 		}
 
 		public override void Continue()
 		{
 			if (!paused) return;
 			paused = false;
+
+			lock (ballsLock)
+			{
+				foreach (var timer in ballTimers)
+				{
+					timer.Start();
+				}
+			}
 		}
 
 		public override void Start(int numberOfBalls, Action<Logic.Ball> upperLayerHandler)
 		{
-			if (Disposed) throw new ObjectDisposedException(nameof(LogicImplementation));
-			Random random = new Random();
-			balls.Clear();
-			for (int i = 0; i < numberOfBalls; i++)
-			{
-				int posX = random.Next(boardWidth - 30);
-				int posY = random.Next(boardHeight - 30);
-				int velX = random.Next(7) - 3;
-				int velY = random.Next(7) - 3;
-				Data.Vector pos = new Data.Vector(posX, posY);
-				Data.Vector vel = new Data.Vector(velX, velY);
+			if (disposed) throw new ObjectDisposedException(nameof(LogicImplementation));
 
-				Ball ball = new Ball(pos, vel, 20);
-				balls.Add(ball);
-				upperLayerHandler(ball);
-				Task.Run(async () =>
+			Random random = new Random();
+
+			lock (ballsLock)
+			{
+				// Czyszczenie poprzedniego stanu
+				Stop();
+
+				// Tworzenie nowych kulek
+				for (int i = 0; i < numberOfBalls; i++)
 				{
-					while (!Disposed)
+					int posX = random.Next(boardWidth - 30);
+					int posY = random.Next(boardHeight - 30);
+					int velX = random.Next(7) - 3;
+					int velY = random.Next(7) - 3;
+
+					var ball = new Ball(new Data.Vector(posX, posY), new Data.Vector(velX, velY), 20);
+					balls.Add(ball);
+					upperLayerHandler(ball);
+
+					// Timer dla ruchu kulki
+					var ballTimer = new System.Timers.Timer(16); // ~60 FPS
+					ballTimer.Elapsed += (sender, e) =>
 					{
 						if (!paused)
 						{
-							ball.Move();
-							ball.BounceOffWall(boardWidth, boardHeight);
+							lock (ball)
+							{
+								ball.Move();
+								ball.BounceOffWall(boardWidth, boardHeight);
+								HandleCollisions();
+							}
 						}
-						await Task.Delay(30); // 30 ms = ~33 FPS
-					}
-				});
+					};
+					ballTimer.AutoReset = true;
+					ballTimer.Start();
+					ballTimers.Add(ballTimer);
+				}
 			}
-			StartCollisionDetection();
 		}
 
 		public override void Stop()
 		{
-			foreach (var b in balls)
+			lock (ballsLock)
 			{
-				b.StopMoving();
+				foreach (var timer in ballTimers)
+				{
+					timer.Stop();
+					timer.Dispose();
+				}
+				ballTimers.Clear();
+
+
+				foreach (var ball in balls)
+				{
+					ball.StopMoving();
+				}
+				balls.Clear();
 			}
-			balls.Clear();
-			collisionTokenSource?.Cancel();
 		}
 
 		private void HandleCollisions()
 		{
-			for (int i = 0; i < balls.Count; i++)
+			lock (ballsLock)
 			{
-				for (int j = i + 1; j < balls.Count; j++)
+				for (int i = 0; i < balls.Count; i++)
 				{
-					Ball b1 = balls[i];
-					Ball b2 = balls[j];
-					if (IsColliding(b1, b2))
+					for (int j = i + 1; j < balls.Count; j++)
 					{
-						ResolveCollision(b1, b2);
+						Ball b1 = balls[i];
+						Ball b2 = balls[j];
+
+						// Sekcja krytyczna z podwójnym lockiem
+						if (Monitor.TryEnter(b1, 0))
+						{
+							try
+							{
+								if (Monitor.TryEnter(b2, 0))
+								{
+									try
+									{
+										if (IsColliding(b1, b2))
+										{
+											ResolveCollision(b1, b2);
+										}
+									}
+									finally
+									{
+										Monitor.Exit(b2);
+									}
+								}
+							}
+							finally
+							{
+								Monitor.Exit(b1);
+							}
+						}
 					}
 				}
 			}
@@ -181,7 +263,7 @@ namespace Logic
 		[Conditional("DEBUG")]
 		public void CheckObjectDisposed(Action<bool> returnInstanceDisposed)
 		{
-			returnInstanceDisposed(Disposed);
+			returnInstanceDisposed(disposed);
 		}
 	}
 }
